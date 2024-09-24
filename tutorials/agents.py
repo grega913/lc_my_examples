@@ -1,5 +1,4 @@
 # from https://python.langchain.com/docs/tutorials/agents/
-
 # mycolab: https://colab.research.google.com/drive/14FVfOAfUnOXI9dxUT11hlIUJA5y0hMNS#scrollTo=WV0qhtc7m6iX
 
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -50,10 +49,6 @@ def agents_app():
             st.success(f"Ou yeah . . . {search_query}")
         except Exception as e:
             st.exception(f"An error occurred: {e}")
-
-
-
-       
 
 def agents():
     print("main")
