@@ -41,7 +41,7 @@ def agents_app():
             with st.spinner("Please wait ..."):
                 time.sleep(1)  # wait for 3 seconds
                 
-                for chunk in agents_sl(search_query=search_query):
+                for chunk in agents_st(search_query=search_query):
                     # print("chunk in st app: ", chunk)
                     result_area = st.text_area("Results", value=chunk)
 
@@ -88,7 +88,7 @@ def agents():
             print("----")
 
 # Use the agent  - in streamlit app
-def agents_sl(search_query):
+def agents_st(search_query):
     # Create the agent
     memory = MemorySaver()
     model = ChatGroq()
