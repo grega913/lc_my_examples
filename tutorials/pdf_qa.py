@@ -11,7 +11,7 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 from langchain_core.runnables.base import Runnable
-from langchain_core import Document
+
 
 import os
 from dotenv import load_dotenv

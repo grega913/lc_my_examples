@@ -18,12 +18,12 @@ load_dotenv()
 
 import streamlit as st
 
-class StreamlitCallbackHandler:
-    def __init__(self, container):
-        self.container = container
-
-    def __call__(self, chunk):
-        self.container.write(chunk["output"])
+def write_stream(stream):
+    result = ""
+    container = st.empty()
+    for chunk in stream:
+        result += chunk
+        container.write(result, unsafe_allow_html=True)
 
 def agents_app():
     # Streamlit app
@@ -41,16 +41,17 @@ def agents_app():
         try:
             with st.spinner("Please wait ..."):
                 time.sleep(1)  # wait for 3 seconds
-                chunks = agents_sl(search_query=search_query)
-                print("this is in streamlit")
-                print(chunks)
-                #result_area('\n'.join(map(str, chunks)))
-                if chunks:
-                    result_area = st.text_area("Results", value=chunks)
+                
+                for chunk in agents_sl(search_query=search_query):
+                    # print("chunk in st app: ", chunk)
+                    result_area = st.text_area("Results", value=chunk)
+
                 time.sleep(1)
             st.success(f"Ou yeah . . . {search_query}")
         except Exception as e:
             st.exception(f"An error occurred: {e}")
+
+
 
        
 
@@ -103,17 +104,16 @@ def agents_sl(search_query):
 
         # Use the agent - test
     chunks = []
-    for chunk in agent_executor.stream(
-        {"messages": [HumanMessage(content=search_query)]}, config
-    ):  
-        now = datetime.datetime.now()
+    for chunk in agent_executor.stream({"messages": [HumanMessage(content=search_query)]}, config):  
 
+        now = datetime.datetime.now()
         chunks.append(chunk)
 
         print(f" now: {now} and chunk is: {chunk}")
         print("----")
         #pass
-    return chunks
+        yield chunk
+    #return chunks
 
 
 
