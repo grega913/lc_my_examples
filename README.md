@@ -1,2 +1,1 @@
-# lc_my_examples
-LangChain, Stremlit
+my copy of https://github.com/alphasecio/langchain-examples
