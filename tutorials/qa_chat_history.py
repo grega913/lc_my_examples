@@ -62,7 +62,7 @@ def chain_with_history_app(session_id:str):
     input_text = st.text_input(
         "Search Query - ask a question regarding the paper?",
          placeholder="What is Task Decomposition?",
-         key="search_query_2"
+         key="it1"
          )
   
     if st.button("Search", key="btn2"):

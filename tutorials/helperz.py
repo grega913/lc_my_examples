@@ -138,7 +138,8 @@ store = {}
 def chain_basic_history_sl(input:str ="What is Task Composition", session_id:str = "abc123"):
     print("chain_basic_history_sl")
 
-    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+    #llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+    llm = ChatOpenAI()
 
 
     ### Construct retriever ###
@@ -201,7 +202,7 @@ def chain_basic_history_sl(input:str ="What is Task Composition", session_id:str
 
 
     ### Statefully manage chat history ###
-    #store = {}
+    # store = {}
 
 
     def get_session_history(session_id: str) -> BaseChatMessageHistory:
