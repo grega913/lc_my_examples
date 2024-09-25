@@ -9,6 +9,10 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.prebuilt import create_react_agent
+from langchain.tools.retriever import create_retriever_tool
+from langchain_core.messages import AIMessage, HumanMessage
 
 
 import os
@@ -76,7 +80,8 @@ def chain_basic():
 
 # function modified to work with streamlit
 def chain_basic_sl(input:str):
-
+    print("def chain_basic_sl")
+    
     llm = ChatOpenAI(model="gpt-4o-mini") 
    # 1. Load, chunk and index the contents of the blog to create a retriever.
 
@@ -133,9 +138,10 @@ def chain_basic_sl(input:str):
     return response["answer"]
 
 
+
 store = {}
 
-def chain_basic_history_sl(input:str ="What is Task Composition", session_id:str = "abc123"):
+def chain_basic_history_sl():
     print("chain_basic_history_sl")
 
     #llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
@@ -202,7 +208,7 @@ def chain_basic_history_sl(input:str ="What is Task Composition", session_id:str
 
 
     ### Statefully manage chat history ###
-    # store = {}
+    #store = {}
 
 
     def get_session_history(session_id: str) -> BaseChatMessageHistory:
@@ -219,9 +225,9 @@ def chain_basic_history_sl(input:str ="What is Task Composition", session_id:str
         output_messages_key="answer",
     )
 
-    session_history = get_session_history(session_id=session_id)
+    # session_history = get_session_history(session_id=session_id)
 
-    print("session_history: ", str(session_history))
+    # print("session_history: ", str(session_history))
     return conversational_rag_chain
     '''
     answer = conversational_rag_chain.invoke(
@@ -242,8 +248,50 @@ def chain_basic_history_sl(input:str ="What is Task Composition", session_id:str
 
 
 
+# Agents #
+# https://python.langchain.com/docs/tutorials/qa_chat_history/#agents
+def agents_sl():
+    print("def agents_sl")
+
+    memory = MemorySaver()
+    #llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+    llm= ChatOpenAI()
+    loader = WebBaseLoader(
+    web_paths=("https://lilianweng.github.io/posts/2023-06-23-agent/",),
+        bs_kwargs=dict(
+            parse_only=bs4.SoupStrainer(
+                class_=("post-content", "post-title", "post-header")
+            )
+        ),
+    )
+    docs = loader.load()
+
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    splits = text_splitter.split_documents(docs)
+    vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
+    retriever = vectorstore.as_retriever()
+
+    ### Build retriever tool ###
+    tool = create_retriever_tool(
+        retriever,
+        "blog_post_retriever",
+        "Searches and returns excerpts from the Autonomous Agents blog post.",
+    )
+    tools = [tool]
+
+    agent_executor = create_react_agent(llm, tools, checkpointer=memory)
+
+    return agent_executor
+
+
+
+
+
+
 
 if __name__ == "__main__":
+
+    '''
     conversational_rag_chain = chain_basic_history_sl()
 
     input = "What is Task Decomposition?"
@@ -256,5 +304,16 @@ if __name__ == "__main__":
 
     print("input: ", input)
     print("answer: ", answer)
+    '''
+
+    # test Agent
+    agent_executor = agents_sl()
+    config = {"configurable": {"thread_id": "abc123"}}
+    query = "What is Task Decomposition?"
+    for s in agent_executor.stream({"messages": [HumanMessage(content=query)]}, config=config):
+        print(s)
+        print("----")
+
+
 
 

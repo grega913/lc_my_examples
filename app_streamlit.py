@@ -5,6 +5,9 @@ from examples.search import search_app
 from examples.playground import intro, mapping_demo, plotting_demo, data_frame_demo
 from tutorials.agents import agents_app
 from tutorials.qa_chat_history import qa_chat_history_app
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 
 st.set_page_config(page_title="LangChain examples by GS", page_icon="🌶️")
